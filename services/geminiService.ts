@@ -5,10 +5,17 @@
 import { GoogleGenAI, GenerateContentResponse, Type } from "@google/genai";
 import { RagStore, Document, QueryResult, CustomMetadata } from '../types';
 
-let ai: GoogleGenAI;
+let ai: GoogleGenAI | null = null;
 
 export function initialize() {
-    ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    if (ai) {
+        return;
+    }
+    const apiKey = process.env.API_KEY;
+    if (!apiKey) {
+        throw new Error("Missing Gemini API key. Set GEMINI_API_KEY in .env.local and restart the app.");
+    }
+    ai = new GoogleGenAI({ apiKey });
 }
 
 async function delay(ms: number): Promise<void> {

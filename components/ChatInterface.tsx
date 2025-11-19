@@ -7,6 +7,7 @@ import { ChatMessage } from '../types';
 import Spinner from './Spinner';
 import SendIcon from './icons/SendIcon';
 import RefreshIcon from './icons/RefreshIcon';
+import UploadCloudIcon from './icons/UploadCloudIcon';
 
 interface ChatInterfaceProps {
     documentName: string;
@@ -15,9 +16,11 @@ interface ChatInterfaceProps {
     onSendMessage: (message: string) => void;
     onNewChat: () => void;
     exampleQuestions: string[];
+    storeName?: string | null;
+    onAddFiles?: () => void;
 }
 
-const ChatInterface: React.FC<ChatInterfaceProps> = ({ documentName, history, isQueryLoading, onSendMessage, onNewChat, exampleQuestions }) => {
+const ChatInterface: React.FC<ChatInterfaceProps> = ({ documentName, history, isQueryLoading, onSendMessage, onNewChat, exampleQuestions, storeName, onAddFiles }) => {
     const [query, setQuery] = useState('');
     const [currentSuggestion, setCurrentSuggestion] = useState('');
     const [modalContent, setModalContent] = useState<string | null>(null);
@@ -124,22 +127,42 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ documentName, history, is
     }, [history, isQueryLoading]);
 
     return (
-        <div className="flex flex-col h-full relative">
-            <header className="absolute top-0 left-0 right-0 p-4 bg-gem-onyx/80 backdrop-blur-sm z-10 flex justify-between items-center border-b border-gem-mist">
-                <div className="w-full max-w-4xl mx-auto flex justify-between items-center px-4">
-                    <h1 className="text-2xl font-bold text-gem-offwhite truncate" title={`Chat with ${documentName}`}>Chat with {documentName}</h1>
-                    <button
-                        onClick={onNewChat}
-                        className="flex items-center px-4 py-2 bg-gem-blue hover:bg-blue-500 rounded-full text-white transition-colors flex-shrink-0"
-                        title="End current chat and start a new one"
-                    >
-                        <RefreshIcon />
-                        <span className="ml-2 hidden sm:inline">New Chat</span>
-                    </button>
+        <div className="flex flex-col h-full bg-gem-onyx">
+            <header className="sticky top-0 left-0 right-0 p-4 bg-gem-onyx/90 backdrop-blur-sm z-10 border-b border-gem-mist">
+                <div className="w-full max-w-4xl mx-auto flex flex-wrap justify-between items-center px-4 gap-3">
+                    <div className="min-w-0">
+                        <h1 className="text-2xl font-bold text-gem-offwhite truncate" title="Chat with Camera Manuals">Chat with Camera Manuals</h1>
+                        {storeName && (
+                            <p className="text-xs text-gem-offwhite/60 truncate" title={storeName}>
+                                File Search Store: {storeName}
+                            </p>
+                        )}
+                    </div>
+                    <div className="flex items-center space-x-2">
+                        {onAddFiles && (
+                            <button
+                                onClick={onAddFiles}
+                                disabled={!storeName}
+                                className="flex items-center px-4 py-2 bg-gem-slate hover:bg-gem-mist rounded-full text-gem-offwhite transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                title={storeName ? "Upload more files to this store" : "Create a store before adding files"}
+                            >
+                                <span className="hidden sm:inline mr-2">Add Files</span>
+                                <UploadCloudIcon />
+                            </button>
+                        )}
+                        <button
+                            onClick={onNewChat}
+                            className="flex items-center px-4 py-2 bg-gem-blue hover:bg-blue-500 rounded-full text-white transition-colors flex-shrink-0"
+                            title="End current chat and return to the uploader"
+                        >
+                            <RefreshIcon />
+                            <span className="ml-2 hidden sm:inline">New Chat</span>
+                        </button>
+                    </div>
                 </div>
             </header>
 
-            <div className="flex-grow pt-24 pb-32 overflow-y-auto px-4">
+            <div className="flex-grow overflow-y-auto px-4 py-8">
                 <div className="w-full max-w-4xl mx-auto space-y-6">
                     {history.map((message, index) => (
                         <div key={index} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
@@ -183,7 +206,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ documentName, history, is
                 </div>
             </div>
 
-            <div className="absolute bottom-0 left-0 right-0 p-4 bg-gem-onyx/80 backdrop-blur-sm">
+            <div className="p-4 bg-gem-onyx/90 backdrop-blur-sm border-t border-gem-mist/60">
                  <div className="max-w-4xl mx-auto">
                     <div className="text-center mb-2 min-h-[3rem] flex items-center justify-center">
                         {!isQueryLoading && currentSuggestion && (
